@@ -23,6 +23,7 @@
 		initDone = false,
 		bodyElement, elem;
 
+<<<<<<< HEAD
 	(function(){
 		//lets hide the body quick
 		testBody();
@@ -44,6 +45,8 @@
 	
 	
 
+=======
+>>>>>>> e3b9a340c9825bcd223994c86e1f5aa0fb8928ca
 	function init() {
 		// quit if this function has already been called
 		if (initDone === true) {
@@ -57,7 +60,13 @@
 		// kill the timer
 		if (_timer) {clearInterval(_timer);}
 
+<<<<<<< HEAD
 		
+=======
+		//setup transition target
+		bodyElement = document.getElementsByTagName(transitionTargetDefault);
+		elem = bodyElement[0];
+>>>>>>> e3b9a340c9825bcd223994c86e1f5aa0fb8928ca
 
 		// make body hidden
 		
@@ -116,9 +125,12 @@
 
 	function hideBody(){
 		elem.style.opacity = 0.0;
+<<<<<<< HEAD
 		//ie 8
 		// elem.style.-ms-filter = 'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)';
 		//ie 6-7
+=======
+>>>>>>> e3b9a340c9825bcd223994c86e1f5aa0fb8928ca
 		elem.style.filter = 'alpha(opacity=0)';
 		goose.log('hide body');
 	}
@@ -192,11 +204,20 @@
 			}else{
 				var value = Math.round(this.alpha + ((this.target - this.alpha) * .05)) + (1 * this.flag);
 				this.elem.style.opacity = value / 100;
+<<<<<<< HEAD
 				// this.elem.style.-ms-filter ='progid:DXImageTransform.Microsoft.Alpha(Opacity=' + value + ')';
 				this.elem.style.filter = 'alpha(opacity=' + value + ')';
 				this.alpha = value;
+=======
+				this.elem.style.filter = 'alpha(opacity=' + value + ')';
+				this.alpha = value
+>>>>>>> e3b9a340c9825bcd223994c86e1f5aa0fb8928ca
 			}
 		}
 	}
 }();
+<<<<<<< HEAD
 })();
+=======
+})();
+>>>>>>> e3b9a340c9825bcd223994c86e1f5aa0fb8928ca
