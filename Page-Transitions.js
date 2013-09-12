@@ -1,6 +1,6 @@
 // JavaScript Document
 /*
-* page transition 0.1
+* page transition 0.5.0
 * Jason McAlpin page transition script. This will run an animation on paeg load and exit. This version will fade in pages on standard compatible browsers
 * copyright 2013, all rights reserved.
 * 
@@ -12,6 +12,7 @@
 
 (function(){
 	'use strict';
+	// init the variables
 	if(window.console){
 		var	goose = console;
 	} else {
@@ -22,9 +23,28 @@
 		initDone = false,
 		bodyElement, elem;
 
+	(function(){
+		//lets hide the body quick
+		testBody();
+		goose.log('looking for body');
+		function testBody(){
+			if ( !document.body ) {
+				return setTimeout( testBody, 1 );
+			} else {
+				//setup transition target
+				bodyElement = document.getElementsByTagName(transitionTargetDefault);
+				elem = bodyElement[0];
+				hideBody();
+			}
+		}
+
+	})();
+	
+
+	
+	
 
 	function init() {
-
 		// quit if this function has already been called
 		if (initDone === true) {
 			goose.log('already run');
@@ -38,18 +58,24 @@
 		if (_timer) {clearInterval(_timer);}
 
 		
-		//setup transition target
-		bodyElement = document.getElementsByTagName(transitionTargetDefault);
-		elem = bodyElement[0];
 
 		// make body hidden
-		hideBody();
+		
 		transitionIn();
 		detectButtons();
 	}
 
+	// works in Firefox perfectly
+	document.onreadystatechange = function () {
+	  if (document.readyState == "interactive"){
+		goose.log('readystate change');
+		init();
+	  }
+	}
+
 	/* for Mozilla/Opera9 */
 	if (document.addEventListener) {
+		goose.log('DOMContentLoaded');
 		document.addEventListener("DOMContentLoaded", init, false);
 	}
 
@@ -68,7 +94,7 @@
 	/* for Safari */
 	if (/WebKit/i.test(navigator.userAgent)) { // sniff
 		var _timer = setInterval(function() {
-	
+
 			if (/loaded|complete/.test(document.readyState)) {
 				init(); // call the onload handler
 			}
@@ -79,34 +105,26 @@
 	window.onload = init;
 
 	function callback(e) {
-
-		var button, linkLocation;
-		// deal with events called events or e
-		if (!e) {var e = window.event;}
-
-		// dealing with target and srcElement
-		if (e.target) {button = e.target;}
-		else if (e.srcElement) {button = e.srcElement;}
-		
-		// check if a button, if not toss it out
-		if (button.tagName !== 'A'){
+		var e = window.e || e;
+		if (e.target.tagName !== 'A'){
 			return;
 		}
-
-		button.preventDefault();
-		linkLocation = button.href;
-		transitionOut(linkLocation);
+		e.returnValue=false;
+		transitionOut(e.target.href);
 	}
 
 
 	function hideBody(){
-
 		elem.style.opacity = 0.0;
+		//ie 8
+		// elem.style.-ms-filter = 'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)';
+		//ie 6-7
+		elem.style.filter = 'alpha(opacity=0)';
 		goose.log('hide body');
 	}
 
 	function detectButtons(){
-
+		goose.log('hunt buttons');
 		// add callback to click event of all links.
 		if (document.addEventListener){
 			document.addEventListener('click', callback, false);}
@@ -116,43 +134,69 @@
 
 
 	function transitionIn(){
-
-		var _timer = setInterval( countUp, 1);
+		fadeEffect.init('body',1)
+		// var _fadeInTimer = setInterval( countUp, 100);
 		goose.log('fade in');
+
+		/*function countUp(){
+			if(transitionTargetOpacity<1){
+				transitionTargetOpacity+=0.10;
+				elem.style.opacity = transitionTargetOpacity;
+			} else{
+				clearInterval(_fadeInTimer);
+			}
+		}
+		*/
 	}
 
 	function transitionOut(linkPassed){
 
-		var _timer = setInterval( countDown, 1);
+		fadeEffect.init('body',0)
+		// var _fadeOutTimer = setInterval( countDown, 50);
+
 		redirectPage(linkPassed);
 		goose.log('fade out');
-	}
 
-	function countUp(){
-
-
-		if(transitionTargetOpacity<1){
-			transitionTargetOpacity+=0.025;
-			elem.style.opacity = transitionTargetOpacity;
-		} else{
-			clearInterval(_timer);
+		/*function countDown(){
+			goose.log('counting down');
+			if(transitionTargetOpacity>0){
+				transitionTargetOpacity-=0.10;
+				elem.style.opacity = transitionTargetOpacity;
+			} else{
+				clearInterval(_fadeOutTimer);
+			}
 		}
-	}
-
-	function countDown(){
-
-		goose.log('counting down');
-		if(transitionTargetOpacity>0){
-			transitionTargetOpacity-=0.025;
-			elem.style.opacity = transitionTargetOpacity;
-		} else{
-			clearInterval(_timer);
-		}
+		*/
 	}
 
 	function redirectPage(linkPassed) {
-
 		window.location = linkPassed;
 	}   
 
+
+
+	var fadeEffect=function(){
+	return{
+		init:function(name, flag, target){
+			this.targetElem = document.getElementsByTagName(name);
+			this.elem = this.targetElem[0];
+			clearInterval(this.elem.si);
+			this.target = target ? target : flag ? 100 : 0;
+			this.flag = flag || -1;
+			this.alpha = this.elem.style.opacity ? parseFloat(this.elem.style.opacity) * 100 : 0;
+			this.elem.si = setInterval(function(){fadeEffect.tween()}, 20);
+		},
+		tween:function(){
+			if(this.alpha == this.target){
+				clearInterval(this.elem.si);
+			}else{
+				var value = Math.round(this.alpha + ((this.target - this.alpha) * .05)) + (1 * this.flag);
+				this.elem.style.opacity = value / 100;
+				// this.elem.style.-ms-filter ='progid:DXImageTransform.Microsoft.Alpha(Opacity=' + value + ')';
+				this.elem.style.filter = 'alpha(opacity=' + value + ')';
+				this.alpha = value;
+			}
+		}
+	}
+}();
 })();
