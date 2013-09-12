@@ -22,9 +22,7 @@
 		initDone = false,
 		bodyElement, elem;
 
-
 	function init() {
-
 		// quit if this function has already been called
 		if (initDone === true) {
 			goose.log('already run');
@@ -37,7 +35,6 @@
 		// kill the timer
 		if (_timer) {clearInterval(_timer);}
 
-		
 		//setup transition target
 		bodyElement = document.getElementsByTagName(transitionTargetDefault);
 		elem = bodyElement[0];
@@ -68,7 +65,7 @@
 	/* for Safari */
 	if (/WebKit/i.test(navigator.userAgent)) { // sniff
 		var _timer = setInterval(function() {
-	
+
 			if (/loaded|complete/.test(document.readyState)) {
 				init(); // call the onload handler
 			}
@@ -79,35 +76,22 @@
 	window.onload = init;
 
 	function callback(e) {
-
-		var button, linkLocation;
-		// deal with events called events or e
-		if (!e) {var e = window.event;}
-
-		// dealing with target and srcElement
-		if (e.target) {button = e.target;}
-		else if (e.srcElement) {button = e.srcElement;}
-		
-		// check if a button, if not toss it out
-		if (button.tagName !== 'A'){
+		var e = window.e || e;
+		if (e.target.tagName !== 'A'){
 			return;
 		}
-		goose.log('button ' + button);
-		goose.log('button href ' + button.href);
-		button.preventDefault();
-		linkLocation = button.href;
-		transitionOut(linkLocation);
+		e.returnValue=false;
+		transitionOut(e.target.href);
 	}
 
 
 	function hideBody(){
-
 		elem.style.opacity = 0.0;
 		goose.log('hide body');
 	}
 
 	function detectButtons(){
-
+		goose.log('hunt buttons');
 		// add callback to click event of all links.
 		if (document.addEventListener){
 			document.addEventListener('click', callback, false);}
@@ -117,43 +101,38 @@
 
 
 	function transitionIn(){
-
-		var _timer = setInterval( countUp, 1);
+		var _fadeInTimer = setInterval( countUp, 100);
 		goose.log('fade in');
+
+		function countUp(){
+			if(transitionTargetOpacity<1){
+				transitionTargetOpacity+=0.10;
+				elem.style.opacity = transitionTargetOpacity;
+			} else{
+				clearInterval(_fadeInTimer);
+			}
+		}
 	}
 
 	function transitionOut(linkPassed){
 
-		var _timer = setInterval( countDown, 1);
+		var _fadeOutTimer = setInterval( countDown, 50);
 		redirectPage(linkPassed);
 		goose.log('fade out');
-	}
 
-	function countUp(){
-
-
-		if(transitionTargetOpacity<1){
-			transitionTargetOpacity+=0.025;
-			elem.style.opacity = transitionTargetOpacity;
-		} else{
-			clearInterval(_timer);
+		function countDown(){
+			goose.log('counting down');
+			if(transitionTargetOpacity>0){
+				transitionTargetOpacity-=0.10;
+				elem.style.opacity = transitionTargetOpacity;
+			} else{
+				clearInterval(_fadeOutTimer);
+			}
 		}
 	}
 
-	function countDown(){
-
-		goose.log('counting down');
-		if(transitionTargetOpacity>0){
-			transitionTargetOpacity-=0.025;
-			elem.style.opacity = transitionTargetOpacity;
-		} else{
-			clearInterval(_timer);
-		}
-	}
 
 	function redirectPage(linkPassed) {
-
 		window.location = linkPassed;
 	}   
-
 })();
