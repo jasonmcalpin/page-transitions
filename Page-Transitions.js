@@ -87,6 +87,7 @@
 
 	function hideBody(){
 		elem.style.opacity = 0.0;
+		elem.style.filter = 'alpha(opacity=0)';
 		goose.log('hide body');
 	}
 
@@ -101,10 +102,11 @@
 
 
 	function transitionIn(){
-		var _fadeInTimer = setInterval( countUp, 100);
+		fadeEffect.init('body',1)
+		// var _fadeInTimer = setInterval( countUp, 100);
 		goose.log('fade in');
 
-		function countUp(){
+		/*function countUp(){
 			if(transitionTargetOpacity<1){
 				transitionTargetOpacity+=0.10;
 				elem.style.opacity = transitionTargetOpacity;
@@ -112,15 +114,18 @@
 				clearInterval(_fadeInTimer);
 			}
 		}
+		*/
 	}
 
 	function transitionOut(linkPassed){
 
-		var _fadeOutTimer = setInterval( countDown, 50);
+		fadeEffect.init('body',0)
+		// var _fadeOutTimer = setInterval( countDown, 50);
+
 		redirectPage(linkPassed);
 		goose.log('fade out');
 
-		function countDown(){
+		/*function countDown(){
 			goose.log('counting down');
 			if(transitionTargetOpacity>0){
 				transitionTargetOpacity-=0.10;
@@ -129,10 +134,36 @@
 				clearInterval(_fadeOutTimer);
 			}
 		}
+		*/
 	}
-
 
 	function redirectPage(linkPassed) {
 		window.location = linkPassed;
 	}   
+
+
+
+	var fadeEffect=function(){
+	return{
+		init:function(name, flag, target){
+			this.targetElem = document.getElementsByTagName(name);
+			this.elem = this.targetElem[0];
+			clearInterval(this.elem.si);
+			this.target = target ? target : flag ? 100 : 0;
+			this.flag = flag || -1;
+			this.alpha = this.elem.style.opacity ? parseFloat(this.elem.style.opacity) * 100 : 0;
+			this.elem.si = setInterval(function(){fadeEffect.tween()}, 20);
+		},
+		tween:function(){
+			if(this.alpha == this.target){
+				clearInterval(this.elem.si);
+			}else{
+				var value = Math.round(this.alpha + ((this.target - this.alpha) * .05)) + (1 * this.flag);
+				this.elem.style.opacity = value / 100;
+				this.elem.style.filter = 'alpha(opacity=' + value + ')';
+				this.alpha = value
+			}
+		}
+	}
+}();
 })();
