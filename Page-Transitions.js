@@ -92,7 +92,8 @@
 		if (button.tagName !== 'A'){
 			return;
 		}
-
+		goose.log('button ' + button);
+		goose.log('button href ' + button.href);
 		button.preventDefault();
 		linkLocation = button.href;
 		transitionOut(linkLocation);
