@@ -117,7 +117,9 @@
 	function hideBody(){
 		elem.style.opacity = 0.0;
 		//ie 8
-		// elem.style.-ms-filter = 'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)';
+		if(document.body.filters) {
+					filter(elem,"Alpha",{Opacity:0});
+				}
 		//ie 6-7
 		elem.style.filter = 'alpha(opacity=0)';
 		goose.log('hide body');
@@ -173,7 +175,30 @@
 		window.location = linkPassed;
 	}   
 
+var filter = function(obj,f,params) {
+  var found, nf, dx = "DXImageTransform.Microsoft.";
 
+  // check if DXImageTransform.Microsoft.[Filter] or [Filter] filter is set
+  try { nf = obj.filters.item(dx+f); found = true; } catch(e) {}
+  if(!found) try { nf = obj.filters.item(f); found = true; } catch(e) {}
+
+  // filter is set - change existing one
+  if(found) {
+    nf.Enabled = true; // if exists, it might be disabled
+    if(params) for(var i in params) nf[i] = params[i];
+  }
+
+  // filter is not set - apply new one
+  else {
+    nf = "";
+    if(params) for(var i in params) nf+= i.toLowerCase()+"="+params[i]+",";
+    if(params) nf = "("+nf.substr(0,nf.length-1)+")";
+    obj.style.filter+= "progid:"+dx+f+nf+" ";
+  }
+
+  // hasLayout property hack
+  if(!obj.style.zoom) obj.style.zoom = 1;
+};
 
 	var fadeEffect=function(){
 	return{
@@ -192,7 +217,10 @@
 			}else{
 				var value = Math.round(this.alpha + ((this.target - this.alpha) * .05)) + (1 * this.flag);
 				this.elem.style.opacity = value / 100;
-				// this.elem.style.-ms-filter ='progid:DXImageTransform.Microsoft.Alpha(Opacity=' + value + ')';
+				if(document.body.filters) {
+					filter(this.elem,"Alpha",{Opacity:value});
+				}
+				//this.filters.items('progid:DXImageTransform.Microsoft.Alpha').opacity = value ;
 				this.elem.style.filter = 'alpha(opacity=' + value + ')';
 				this.alpha = value;
 			}
