@@ -1,37 +1,62 @@
 // JavaScript Document
 /*
-* page transition 0.5.0
+* page transition 0.5.1
 * Jason McAlpin page transition script. This will run an animation on paeg load and exit. This version will fade in pages on standard compatible browsers
 * copyright 2013, all rights reserved.
 * 
 * Init function is designed by Dean Edwards/Matthias Miller/John Resig
 * http://dean.edwards.name/weblog/2006/06/again/
+*
+* new filter from microsoft filters.
+* obj.filters property http://msdn.microsoft.com/en-us/library/ms537452(VS.85).aspx
+* filter.Alpha http://msdn.microsoft.com/en-us/library/ms532967(VS.85).aspx
 */
 
 
 
 (function(){
 	'use strict';
-	// init the variables
+
+	var transitionTargetDefault = 'body',
+		transitionTargetOpacity = 0,
+		initDone                = false,
+		bodyElement, elem;
+
+	function hideBody(){
+		goose.log('hiding body');
+		elem.style.opacity = transitionTargetOpacity;
+		//ie 6-7
+		elem.style.filter = 'alpha(opacity='+transitionTargetOpacity+')';
+	}
+
+
+	/* 
+	* init the console log on browsers that don't have it. placeholder for more advanced debugger to come
+	*/
+
 	if(window.console){
 		var	goose = console;
 	} else {
 		var	goose ={'log':''};
 	}
-	var transitionTargetDefault = 'body',
-		transitionTargetOpacity = 0,
-		initDone = false,
-		bodyElement, elem;
+	/*
+	* lets hide the body quick. first see if it is loaded if so hide it in every browser
+	*/
+	goose.log('looking for body');
+	
 
-<<<<<<< HEAD
+
 	(function(){
 		//lets hide the body quick
 		testBody();
-		goose.log('looking for body');
+		goose.log('looking for body closure');
+
 		function testBody(){
 			if ( !document.body ) {
+				goose.log('still no body');
 				return setTimeout( testBody, 1 );
 			} else {
+				goose.log('theres the body');
 				//setup transition target
 				bodyElement = document.getElementsByTagName(transitionTargetDefault);
 				elem = bodyElement[0];
@@ -41,50 +66,22 @@
 
 	})();
 	
-
-	
 	
 
-=======
->>>>>>> e3b9a340c9825bcd223994c86e1f5aa0fb8928ca
-	function init() {
-		// quit if this function has already been called
-		if (initDone === true) {
-			goose.log('already run');
-			return;
-		}
 
-		// flag this function so we don't do the same thing twice
-		initDone = true;
-
-		// kill the timer
-		if (_timer) {clearInterval(_timer);}
-
-<<<<<<< HEAD
-		
-=======
-		//setup transition target
-		bodyElement = document.getElementsByTagName(transitionTargetDefault);
-		elem = bodyElement[0];
->>>>>>> e3b9a340c9825bcd223994c86e1f5aa0fb8928ca
-
-		// make body hidden
-		
-		transitionIn();
-		detectButtons();
-	}
-
-	// works in Firefox perfectly
+	/*
+	* Detect if DOM is interactive and if so begin initialization
+	*/
 	document.onreadystatechange = function () {
-	  if (document.readyState == "interactive"){
-		goose.log('readystate change');
-		init();
-	  }
-	}
+		if (document.readyState === "interactive"){
+			goose.log('readystate change');
+			hideBody();
+			init();
+		}
+	};
 
 	/* for Mozilla/Opera9 */
 	if (document.addEventListener) {
-		goose.log('DOMContentLoaded');
 		document.addEventListener("DOMContentLoaded", init, false);
 	}
 
@@ -110,12 +107,36 @@
 		}, 10);
 	}
 
-	/* for other browsers */
-	window.onload = init;
+
+	function init() {
+		// quit if this function has already been called
+		if (initDone === true) {
+			goose.log('already run');
+			return;
+		}
+
+		// flag this function so we don't do the same thing twice
+		initDone = true;
+
+		// kill the timer
+		if (_timer) {clearInterval(_timer);}
+
+		
+
+		// reveal page and begin detecting for mouse clicks
+		transitionIn();
+		detectButtons();
+	}
+
+	/* for other browsers - then don't run. no way to hide body before page is visible. onload is to late. lets just die gracefully.shhhh...
+	//window.onload = init;
+	*/
 
 	function callback(e) {
-		var e = window.e || e;
-		if (e.target.tagName !== 'A'){
+		if (!e) {
+			var e = window.event;
+		}
+		if (e.target.tagName !== 'A'|| e.target.href ===''|| e.target.href ==='#'|| e.target.href == undefined|| e.target.href==='javascript:;'){
 			return;
 		}
 		e.returnValue=false;
@@ -123,17 +144,7 @@
 	}
 
 
-	function hideBody(){
-		elem.style.opacity = 0.0;
-<<<<<<< HEAD
-		//ie 8
-		// elem.style.-ms-filter = 'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)';
-		//ie 6-7
-=======
->>>>>>> e3b9a340c9825bcd223994c86e1f5aa0fb8928ca
-		elem.style.filter = 'alpha(opacity=0)';
-		goose.log('hide body');
-	}
+	
 
 	function detectButtons(){
 		goose.log('hunt buttons');
@@ -146,78 +157,45 @@
 
 
 	function transitionIn(){
-		fadeEffect.init('body',1)
-		// var _fadeInTimer = setInterval( countUp, 100);
+		fadeEffect.init('body',1);
 		goose.log('fade in');
-
-		/*function countUp(){
-			if(transitionTargetOpacity<1){
-				transitionTargetOpacity+=0.10;
-				elem.style.opacity = transitionTargetOpacity;
-			} else{
-				clearInterval(_fadeInTimer);
-			}
-		}
-		*/
 	}
 
 	function transitionOut(linkPassed){
-
-		fadeEffect.init('body',0)
-		// var _fadeOutTimer = setInterval( countDown, 50);
-
+		fadeEffect.init('body',0);
 		redirectPage(linkPassed);
-		goose.log('fade out');
-
-		/*function countDown(){
-			goose.log('counting down');
-			if(transitionTargetOpacity>0){
-				transitionTargetOpacity-=0.10;
-				elem.style.opacity = transitionTargetOpacity;
-			} else{
-				clearInterval(_fadeOutTimer);
-			}
-		}
-		*/
 	}
 
 	function redirectPage(linkPassed) {
 		window.location = linkPassed;
-	}   
-
-
+	}
 
 	var fadeEffect=function(){
-	return{
-		init:function(name, flag, target){
-			this.targetElem = document.getElementsByTagName(name);
-			this.elem = this.targetElem[0];
-			clearInterval(this.elem.si);
-			this.target = target ? target : flag ? 100 : 0;
-			this.flag = flag || -1;
-			this.alpha = this.elem.style.opacity ? parseFloat(this.elem.style.opacity) * 100 : 0;
-			this.elem.si = setInterval(function(){fadeEffect.tween()}, 20);
-		},
-		tween:function(){
-			if(this.alpha == this.target){
+		return{
+			init:function(name, flag, target){
+				goose.log('fade effect init');
+				this.targetElem = document.getElementsByTagName(name);
+				this.elem = this.targetElem[0];
 				clearInterval(this.elem.si);
-			}else{
-				var value = Math.round(this.alpha + ((this.target - this.alpha) * .05)) + (1 * this.flag);
-				this.elem.style.opacity = value / 100;
-<<<<<<< HEAD
-				// this.elem.style.-ms-filter ='progid:DXImageTransform.Microsoft.Alpha(Opacity=' + value + ')';
-				this.elem.style.filter = 'alpha(opacity=' + value + ')';
-				this.alpha = value;
-=======
-				this.elem.style.filter = 'alpha(opacity=' + value + ')';
-				this.alpha = value
->>>>>>> e3b9a340c9825bcd223994c86e1f5aa0fb8928ca
+				this.target = target ? target : flag ? 100 : 0;
+				this.flag = flag || -1;
+				this.alpha = this.elem.style.opacity ? parseFloat(this.elem.style.opacity) * 100 : 0;
+				this.elem.si = setInterval(function(){fadeEffect.tween();}, 20);
+			},
+			tween:function(){
+				if(this.alpha === this.target){
+					clearInterval(this.elem.si);
+				}else{
+					var value = Math.round(this.alpha + ((this.target - this.alpha) * 0.05)) + (1 * this.flag);
+					this.elem.style.opacity = value / 100;
+					if(document.body.filters) {
+						filter(this.elem,"Alpha",{Opacity:value});
+					}
+					//this.filters.items('progid:DXImageTransform.Microsoft.Alpha').opacity = value ;
+					this.elem.style.filter = 'alpha(opacity=' + value + ')';
+					this.alpha = value;
+				}
 			}
-		}
-	}
-}();
-<<<<<<< HEAD
+		};
+	}();
 })();
-=======
-})();
->>>>>>> e3b9a340c9825bcd223994c86e1f5aa0fb8928ca
