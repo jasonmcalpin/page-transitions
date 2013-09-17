@@ -1,6 +1,6 @@
 // JavaScript Document
 /*
-* page transition 0.5.3
+* page transition 0.5.4
 * Jason McAlpin page transition script. This will run an animation on paeg load and exit. This version will fade in pages on standard compatible browsers
 * copyright 2013, all rights reserved.
 * 
@@ -141,7 +141,7 @@
 		}
 		// test for links that don't leave the page and ignore them.
 		goose.log(e.target.href);
-		var localLink = /^#$|javascript|^undefined?|^$|\0/i;
+		var localLink = /#|javascript|^undefined?|^$|\0/i;
 		if (e.target.tagName !== 'A'||localLink.test(e.target.href) ) {
 			goose.log('link ignored'); 
 			return;
