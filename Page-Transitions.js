@@ -1,27 +1,28 @@
 // JavaScript Document
 /*
-* page transition 0.5.2
+* page transition 0.5.3
 * Jason McAlpin page transition script. This will run an animation on paeg load and exit. This version will fade in pages on standard compatible browsers
 * copyright 2013, all rights reserved.
 * 
 * Init function is designed by Dean Edwards/Matthias Miller/John Resig
 * http://dean.edwards.name/weblog/2006/06/again/
 *
-* new filter from microsoft filters.
+* New filter from microsoft filters.
 * obj.filters property http://msdn.microsoft.com/en-us/library/ms537452(VS.85).aspx
 * filter.Alpha http://msdn.microsoft.com/en-us/library/ms532967(VS.85).aspx
 */
-
-
 
 (function(){
 	'use strict';
 
 	var transitionTargetDefault = 'body',
 		transitionTargetOpacity = 0,
+		transitionSpeed         = 10,
+		transitionAmmount       = 0.05,
 		initDone                = false,
 		hideBodyDone            = false,
 		bodyElement, elem;
+
 
 	function hideBody(){
 		if(hideBodyDone){
@@ -29,7 +30,7 @@
 		}
 
 		hideBodyDone = true;
-		
+
 		goose.log('hiding body');
 		elem.style.opacity = transitionTargetOpacity;
 		//ie 6-7
@@ -38,7 +39,7 @@
 
 
 	/* 
-	* init the console log on browsers that don't have it. placeholder for more advanced debugger to come
+	* init the console log on browsers that don't have it. Placeholder for more advanced debugger to come
 	*/
 
 	if(window.console){
@@ -47,20 +48,18 @@
 		var	goose ={'log':''};
 	}
 	/*
-	* lets hide the body quick. first see if it is loaded if so hide it in every browser
+	* Lets hide the body quick. First see if it is loaded if so hide it in every browser
 	*/
 	goose.log('looking for body');
 	
-
-
 	(function(){
 		//lets hide the body quick
+		goose.log('looking for body');
 		testBody();
-		goose.log('looking for body closure');
+		
 
 		function testBody(){
 			if ( !document.body ) {
-				goose.log('still no body');
 				return setTimeout( testBody, 1 );
 			} else {
 				goose.log('theres the body');
@@ -73,9 +72,6 @@
 
 	})();
 	
-	
-
-
 	/*
 	* Detect if DOM is interactive and if so begin initialization
 	*/
@@ -143,26 +139,26 @@
 		if (!e) {
 			var e = window.event;
 		}
-		var localLink = /#|javascript|undefined|(^?|\0)/i;
+		// test for links that don't leave the page and ignore them.
+		goose.log(e.target.href);
+		var localLink = /^#$|javascript|^undefined?|^$|\0/i;
 		if (e.target.tagName !== 'A'||localLink.test(e.target.href) ) {
+			goose.log('link ignored'); 
 			return;
 		}
 		e.returnValue=false;
 		transitionOut(e.target.href);
 	}
 
-
-	
-
 	function detectButtons(){
 		goose.log('hunt buttons');
+
 		// add callback to click event of all links.
 		if (document.addEventListener){
 			document.addEventListener('click', callback, false);}
 		else
 			{document.attachEvent('onclick', callback);}
 	}
-
 
 	function transitionIn(){
 		fadeEffect.init('body',1);
@@ -179,6 +175,7 @@
 	}
 
 	var fadeEffect=function(){
+		goose.log('fadeEffect ran as it init');
 		return{
 			init:function(name, flag, target){
 				goose.log('fade effect init');
@@ -188,18 +185,14 @@
 				this.target = target ? target : flag ? 100 : 0;
 				this.flag = flag || -1;
 				this.alpha = this.elem.style.opacity ? parseFloat(this.elem.style.opacity) * 100 : 0;
-				this.elem.si = setInterval(function(){fadeEffect.tween();}, 20);
+				this.elem.si = setInterval(function(){fadeEffect.tween();}, transitionSpeed);
 			},
 			tween:function(){
 				if(this.alpha === this.target){
 					clearInterval(this.elem.si);
 				}else{
-					var value = Math.round(this.alpha + ((this.target - this.alpha) * 0.05)) + (1 * this.flag);
+					var value = Math.round(this.alpha + ((this.target - this.alpha) * transitionAmmount)) + (1 * this.flag);
 					this.elem.style.opacity = value / 100;
-					if(document.body.filters) {
-						filter(this.elem,"Alpha",{Opacity:value});
-					}
-					//this.filters.items('progid:DXImageTransform.Microsoft.Alpha').opacity = value ;
 					this.elem.style.filter = 'alpha(opacity=' + value + ')';
 					this.alpha = value;
 				}
