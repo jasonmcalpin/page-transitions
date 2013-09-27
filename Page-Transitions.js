@@ -1,6 +1,6 @@
 // JavaScript Document
 /*
-* page transition 0.5.4
+* page transition 0.5.5
 * Jason McAlpin page transition script. This will run an animation on paeg load and exit. This version will fade in pages on standard compatible browsers
 * copyright 2013, all rights reserved.
 * 
@@ -50,27 +50,27 @@
 	/*
 	* Lets hide the body quick. First see if it is loaded if so hide it in every browser
 	*/
-	goose.log('looking for body');
 	
-	(function(){
-		//lets hide the body quick
-		goose.log('looking for body');
-		testBody();
-		
+	
+	
+	//lets hide the body quick
+	goose.log('looking for body');
+	testBody();
+	
 
-		function testBody(){
-			if ( !document.body ) {
-				return setTimeout( testBody, 1 );
-			} else {
-				goose.log('theres the body');
-				//setup transition target
-				bodyElement = document.getElementsByTagName(transitionTargetDefault);
-				elem = bodyElement[0];
-				hideBody();
-			}
+	function testBody(){
+		if ( !document.body ) {
+			return setTimeout( testBody, 1 );
+		} else {
+			goose.log('theres the body');
+			//setup transition target
+			bodyElement = document.getElementsByTagName(transitionTargetDefault);
+			elem = bodyElement[0];
+			hideBody();
 		}
+	}
 
-	})();
+	
 	
 	/*
 	* Detect if DOM is interactive and if so begin initialization
@@ -131,9 +131,7 @@
 		detectButtons();
 	}
 
-	/* for other browsers - then don't run. no way to hide body before page is visible. onload is to late. lets just die gracefully.shhhh...
-	//window.onload = init;
-	*/
+	
 
 	function callback(e) {
 		if (!e) {
