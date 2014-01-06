@@ -12,6 +12,19 @@
 * filter.Alpha http://msdn.microsoft.com/en-us/library/ms532967(VS.85).aspx
 */
 
+/*global browser, jQuery, self, unescape */
+/*jslint undef: true, 
+	unused:true, 
+	eqnull:true, 
+	bitwise: true, 
+	regexp: true, 
+	confusion: true, 
+	es5: true, 
+	vars: true, 
+	white: true,
+	plusplus: true 
+*/
+
 (function(){
 	'use strict';
 
