@@ -13,7 +13,10 @@
 */
 
 /*global browser, jQuery, self, unescape */
-/*jslint undef: true, 
+/*jslint latedef: true,
+	strict:false,
+	newcap:true,
+	undef: true, 
 	unused:true, 
 	eqnull:true, 
 	bitwise: true, 
@@ -22,9 +25,9 @@
 	es5: true, 
 	vars: true, 
 	white: true,
-	plusplus: true 
+	plusplus: true,
+	trailing:true
 */
-
 (function(){
 	'use strict';
 
