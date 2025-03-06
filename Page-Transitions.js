@@ -11,206 +11,108 @@
 * obj.filters property http://msdn.microsoft.com/en-us/library/ms537452(VS.85).aspx
 * filter.Alpha http://msdn.microsoft.com/en-us/library/ms532967(VS.85).aspx
 */
+(function () {
+    'use strict';
 
-/*global browser, jQuery, self, unescape */
-/*jslint latedef: true,
-	strict:false,
-	newcap:true,
-	undef: true, 
-	unused:true, 
-	eqnull:true, 
-	bitwise: true, 
-	regexp: true, 
-	confusion: true, 
-	es5: true, 
-	vars: true, 
-	white: true,
-	plusplus: true,
-	trailing:true
-*/
-(function(){
-	'use strict';
+    const transitionTarget = 'body';
+    const transitionSpeed = 10;
+    const transitionAmount = 0.05;
+    
+    let initDone = false;
+    let hideBodyDone = false;
+    let bodyElement;
+    
+    function hideBody() {
+        if (hideBodyDone) return;
+        hideBodyDone = true;
+        console.log('Hiding body');
 
-	var transitionTargetDefault = 'body',
-		transitionTargetOpacity = 0,
-		transitionSpeed         = 10,
-		transitionAmmount       = 0.05,
-		initDone                = false,
-		hideBodyDone            = false,
-		bodyElement, elem;
+        bodyElement.style.opacity = 0;
+        bodyElement.style.filter = 'alpha(opacity=0)'; // Legacy IE support
+    }
 
+    function testBody() {
+        if (!document.body) {
+            return setTimeout(testBody, 1);
+        }
 
-	function hideBody(){
-		if(hideBodyDone){
-			return;
-		}
+        console.log('Body found');
+        bodyElement = document.querySelector(transitionTarget);
+        hideBody();
+    }
 
-		hideBodyDone = true;
+    function init() {
+        if (initDone) {
+            console.log('Already initialized');
+            return;
+        }
+        
+        initDone = true;
+        transitionIn();
+        detectLinks();
+    }
 
-		goose.log('hiding body');
-		elem.style.opacity = transitionTargetOpacity;
-		//ie 6-7
-		elem.style.filter = 'alpha(opacity='+transitionTargetOpacity+')';
-	}
+    function transitionIn() {
+        fadeEffect.init('body', 1);
+        console.log('Fade in');
+    }
 
+    function transitionOut(url) {
+        fadeEffect.init('body', 0);
+        setTimeout(() => (window.location = url), transitionSpeed * 50); // Small delay for transition
+    }
 
-	/* 
-	* init the console log on browsers that don't have it. Placeholder for more advanced debugger to come
-	*/
+    function detectLinks() {
+        console.log('Detecting links');
+        document.addEventListener('click', (event) => {
+            const target = event.target.closest('a');
+            if (!target || !target.href || /#|javascript|^undefined?|^$|\0/i.test(target.href)) {
+                console.log('Ignored link');
+                return;
+            }
 
-	if(window.console){
-		var	goose = console;
-	} else {
-		var	goose ={'log':''};
-	}
-	/*
-	* Lets hide the body quick. First see if it is loaded if so hide it in every browser
-	*/
-	
-	
-	
-	//lets hide the body quick
-	goose.log('looking for body');
-	testBody();
-	
+            event.preventDefault();
+            transitionOut(target.href);
+        });
+    }
 
-	function testBody(){
-		if ( !document.body ) {
-			return setTimeout( testBody, 1 );
-		} else {
-			goose.log('theres the body');
-			//setup transition target
-			bodyElement = document.getElementsByTagName(transitionTargetDefault);
-			elem = bodyElement[0];
-			hideBody();
-		}
-	}
+    const fadeEffect = {
+        init(name, flag) {
+            console.log('Initializing fade effect');
+            this.elem = document.querySelector(name);
+            if (!this.elem) return;
 
-	
-	
-	/*
-	* Detect if DOM is interactive and if so begin initialization
-	*/
-	document.onreadystatechange = function () {
-		if (document.readyState === "interactive"){
-			goose.log('readystate change');
-			hideBody();
-			init();
-		}
-	};
+            clearInterval(this.elem.si);
+            this.target = flag ? 100 : 0;
+            this.alpha = parseFloat(this.elem.style.opacity || 0) * 100;
+            this.flag = flag || -1;
 
-	/* for Mozilla/Opera9 */
-	if (document.addEventListener) {
-		document.addEventListener("DOMContentLoaded", init, false);
-	}
+            this.elem.si = setInterval(() => this.tween(), transitionSpeed);
+        },
 
-	/* for Internet Explorer */
-	/*@cc_on @*/
-	/*@if (@_win32)
-	document.write("<script id=__ie_onload defer src=javascript:void(0)><\/script>");
-	var script = document.getElementById("__ie_onload");
-	script.onreadystatechange = function() {
-		if (this.readyState == "complete") {
-			init(); // call the onload handler
-		}
-	};
-	/*@end @*/
+        tween() {
+            if (this.alpha === this.target) {
+                clearInterval(this.elem.si);
+                return;
+            }
 
-	/* for Safari */
-	if (/WebKit/i.test(navigator.userAgent)) { // sniff
-		var _timer = setInterval(function() {
+            this.alpha = Math.round(this.alpha + ((this.target - this.alpha) * transitionAmount));
+            this.elem.style.opacity = this.alpha / 100;
+            this.elem.style.filter = `alpha(opacity=${this.alpha})`;
+        }
+    };
 
-			if (/loaded|complete/.test(document.readyState)) {
-				init(); // call the onload handler
-			}
-		}, 10);
-	}
+    // Start script
+    console.log('Looking for body');
+    testBody();
 
+    document.onreadystatechange = function () {
+        if (document.readyState === 'interactive') {
+            console.log('Document ready');
+            hideBody();
+            init();
+        }
+    };
 
-	function init() {
-		// quit if this function has already been called
-		if (initDone === true) {
-			goose.log('already run');
-			return;
-		}
-
-		// flag this function so we don't do the same thing twice
-		initDone = true;
-
-		// kill the timer
-		if (_timer) {clearInterval(_timer);}
-
-		
-
-		// reveal page and begin detecting for mouse clicks
-		transitionIn();
-		detectButtons();
-	}
-
-	
-
-	function callback(e) {
-		if (!e) {
-			var e = window.event;
-		}
-		// test for links that don't leave the page and ignore them.
-		goose.log(e.target.href);
-		var localLink = /#|javascript|^undefined?|^$|\0/i;
-		if (e.target.tagName !== 'A'||localLink.test(e.target.href) ) {
-			goose.log('link ignored'); 
-			return;
-		}
-		e.returnValue=false;
-		transitionOut(e.target.href);
-	}
-
-	function detectButtons(){
-		goose.log('hunt buttons');
-
-		// add callback to click event of all links.
-		if (document.addEventListener){
-			document.addEventListener('click', callback, false);}
-		else
-			{document.attachEvent('onclick', callback);}
-	}
-
-	function transitionIn(){
-		fadeEffect.init('body',1);
-		goose.log('fade in');
-	}
-
-	function transitionOut(linkPassed){
-		fadeEffect.init('body',0);
-		redirectPage(linkPassed);
-	}
-
-	function redirectPage(linkPassed) {
-		window.location = linkPassed;
-	}
-
-	var fadeEffect=function(){
-		goose.log('fadeEffect ran as it init');
-		return{
-			init:function(name, flag, target){
-				goose.log('fade effect init');
-				this.targetElem = document.getElementsByTagName(name);
-				this.elem = this.targetElem[0];
-				clearInterval(this.elem.si);
-				this.target = target ? target : flag ? 100 : 0;
-				this.flag = flag || -1;
-				this.alpha = this.elem.style.opacity ? parseFloat(this.elem.style.opacity) * 100 : 0;
-				this.elem.si = setInterval(function(){fadeEffect.tween();}, transitionSpeed);
-			},
-			tween:function(){
-				if(this.alpha === this.target){
-					clearInterval(this.elem.si);
-				}else{
-					var value = Math.round(this.alpha + ((this.target - this.alpha) * transitionAmmount)) + (1 * this.flag);
-					this.elem.style.opacity = value / 100;
-					this.elem.style.filter = 'alpha(opacity=' + value + ')';
-					this.alpha = value;
-				}
-			}
-		};
-	}();
+    document.addEventListener('DOMContentLoaded', init);
 })();
